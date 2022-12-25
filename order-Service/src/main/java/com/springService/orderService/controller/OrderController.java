@@ -10,6 +10,7 @@ import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -21,6 +22,9 @@ public class OrderController {
 
     @Autowired
     OrderService orderService;
+
+    @Autowired
+    WebClient.Builder webClientBuilder;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -34,9 +38,8 @@ public class OrderController {
             return CompletableFuture.supplyAsync(e::getLocalizedMessage);
         }
     }
-
     public CompletableFuture<String> fallback(OrderRequest orderRequest, Exception e) {
-        return CompletableFuture.supplyAsync(()->"Oops, somethings went wrong, please try again later ");
+        return CompletableFuture.supplyAsync(()->"Oops, somethings went wrong, please try again later: " + e.getMessage());
     }
 
     @GetMapping

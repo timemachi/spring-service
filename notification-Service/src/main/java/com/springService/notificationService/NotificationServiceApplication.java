@@ -1,6 +1,6 @@
 package com.springService.notificationService;
 
-import event.CustomEvent;
+import com.springService.notificationService.event.CustomEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

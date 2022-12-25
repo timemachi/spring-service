@@ -17,7 +17,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,16 +64,16 @@ public class OrderService {
                     .bodyToMono(InventoryResponse.class)
                     .block();
             assert res != null;
-            if (res.isInStock()) {
+            if (!res.isInStock()) {
                 throw new IllegalArgumentException("Product is not in stock, please try again later");
             }
         }
         for (OrderLineItems items : orderLineItems) {
             webClientBuilder.build().put()
-                    .uri("http://inventory-service/api/inventory/update",
+                    .uri("http://inventory-service/api/inventory",
                             uriBuilder -> uriBuilder
                                     .queryParam("skuCode", items.getSkuCode())
-                                    .queryParam("quantity", items.getQuantity())
+                                    .queryParam("quantity", items.getQuantity() * -1)
                                     .build())
                     .retrieve()
                     .toBodilessEntity()
