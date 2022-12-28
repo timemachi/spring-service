@@ -15,4 +15,12 @@ public class NotificationService {
     public List<CustomEvent> getAllEvents() {
         return notificationRepository.findAll();
     }
+
+    public List<CustomEvent> getEventsByServiceName(String serviceName) {
+        return notificationRepository.findDistinctByServiceName(serviceName);
+    }
+
+    public void saveEvent(CustomEvent event) {
+        notificationRepository.save(event);
+    }
 }
