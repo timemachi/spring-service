@@ -1,4 +1,6 @@
-# spring-service
+# spring-microservice order-inventory systme for practice
+
+Tutorial: [Programming Techie Course](https://www.youtube.com/playlist?list=PLSVW22jAG8pBnhAdq9S8BpLnZ0_jVBj0c) 
 
 ## API Reference
 ### 1. Product Service
@@ -66,6 +68,18 @@
 ```http
   GET /api/inventory/all
 ```
+
+## Tech Stack
+
+**Server:** Springboot web, Spring cloud, Netflix Eureka, Api gateway
+
+**Security:** Keyclock, Oauth2
+
+**Distributed tracing:** Zipkin 
+
+**Monitoring:** Prometheus & Grafana
+
+**Event register:** Kafka
 
 
 
