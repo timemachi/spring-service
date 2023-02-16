@@ -17,10 +17,12 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Transactional
@@ -42,6 +44,8 @@ public class OrderService {
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
 
+
+
         ObjectMapper mapper = new JsonMapper();
 
         List<OrderLineItems> orderLineItems = orderRequest.getOrderLineItemsDtoList()
@@ -53,8 +57,10 @@ public class OrderService {
 
         log.info("Calling inventory service");
 
+        AtomicReference<InventoryResponse> res = null;
+
         for (OrderLineItems items : orderLineItems) {
-            InventoryResponse res = webClientBuilder.build().get()
+             webClientBuilder.build().get()
                     .uri("http://inventory-service/api/inventory",
                             uriBuilder -> uriBuilder
                                     .queryParam("skuCode", items.getSkuCode())
@@ -62,12 +68,22 @@ public class OrderService {
                                     .build())
                     .retrieve()
                     .bodyToMono(InventoryResponse.class)
-                    .block();
-            assert res != null;
-            if (!res.isInStock()) {
+                    .subscribe(
+                            successValue -> {
+                                assert res != null;
+                                assert successValue != null;
+                                res.set(successValue);
+                            },
+                            error -> {
+                                throw new RuntimeException(error);
+                            }
+                    );
+
+            if (!res.get().isInStock()) {
                 throw new IllegalArgumentException("Product is not in stock, please try again later");
             }
         }
+
         for (OrderLineItems items : orderLineItems) {
             webClientBuilder.build().put()
                     .uri("http://inventory-service/api/inventory",
